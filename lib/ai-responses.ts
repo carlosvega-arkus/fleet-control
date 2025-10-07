@@ -1,8 +1,20 @@
-import { VehiclesGeoJson, VehicleFeature } from './types';
+import { VehiclesGeoJson, VehicleFeature, LocationsGeoJson, Delivery } from './types';
+
+export interface AIIntent {
+  type: 'start_delivery' | 'cancel_delivery' | 'status_delivery' | 'reroute_to_location' | 'show_vehicle_route' | 'hide_all_routes';
+  payload: any;
+}
+
+export interface AIReplyRich {
+  reply: string;
+  intent?: AIIntent;
+}
 
 export function generateAIResponse(
   message: string,
-  vehiclesData: VehiclesGeoJson | null
+  vehiclesData: VehiclesGeoJson | null,
+  locationsData?: LocationsGeoJson | null,
+  deliveriesData?: Delivery[] | null
 ): string {
   const lowerMessage = message.toLowerCase();
 
@@ -119,4 +131,80 @@ export function generateAIResponse(
   ];
 
   return responses[Math.floor(Math.random() * responses.length)];
+}
+
+export function generateAIResponseRich(
+  message: string,
+  vehiclesData: VehiclesGeoJson | null,
+  locationsData?: LocationsGeoJson | null,
+  deliveriesData?: Delivery[] | null
+): AIReplyRich {
+  const base = generateAIResponse(message, vehiclesData, locationsData, deliveriesData);
+  const lower = message.toLowerCase();
+
+  // Intent: start delivery Dxxx
+  const startMatch = lower.match(/start\s+delivery\s+(d\d{3,})/i);
+  if (startMatch) {
+    return { reply: `Starting delivery ${startMatch[1].toUpperCase()}...`, intent: { type: 'start_delivery', payload: { id: startMatch[1].toUpperCase() } } };
+  }
+
+  // Intent: status delivery Dxxx
+  const statusMatch = lower.match(/status\s+delivery\s+(d\d{3,})/i);
+  if (statusMatch && Array.isArray(deliveriesData)) {
+    const id = statusMatch[1].toUpperCase();
+    const d = deliveriesData.find((x) => x.id === id);
+    if (d) {
+      return { reply: `Delivery ${id} is ${d.status}. Vehicle ${d.vehicleId} from ${d.pickupWarehouseId} to ${d.dropStoreId}.`, intent: { type: 'status_delivery', payload: { id } } };
+    }
+    return { reply: `I could not find delivery ${id}.` };
+  }
+
+  // Intent: reroute vehicle to location (warehouse/store name or id)
+  if ((/go to|ve al|ir al|send to/).test(lower) && locationsData && vehiclesData) {
+    const vehMatch = lower.match(/(vehicle|carro|camion|camión)\s+([a-z0-9-]+)/i);
+    const locMatch = lower.match(/(warehouse|almac[eé]n|store|tienda)\s+([a-z0-9-]+)/i);
+    const vehicleToken = vehMatch?.[2];
+    const locationToken = locMatch?.[2];
+    if (vehicleToken && locationToken) {
+      // Find vehicle by id or alias (case-insensitive)
+      const v = vehiclesData.features.find((f) => f.properties.id.toLowerCase() === vehicleToken || f.properties.alias.toLowerCase().includes(vehicleToken));
+      // Find location by id or name token
+      const l = locationsData.features.find((f) => f.properties.id.toLowerCase() === locationToken || f.properties.name.toLowerCase().includes(locationToken));
+      if (v && l) {
+        return { reply: `Sending ${v.properties.alias} to ${l.properties.name}.`, intent: { type: 'reroute_to_location', payload: { vehicleId: v.properties.id, locationId: l.properties.id } } };
+      }
+    }
+  }
+
+  // Intent: cancel delivery Dxxx
+  // Intent: show only this vehicle's route
+  const showRouteMatch = lower.match(/(show|mostrar)\s+(route|trayecto)\s+(for\s+)?(vehicle|carro|camion|camión)\s+([a-z0-9-]+)/i);
+  if (showRouteMatch) {
+    const vehToken = showRouteMatch[5];
+    return { reply: `Showing route for vehicle ${vehToken}.`, intent: { type: 'show_vehicle_route', payload: { vehicleToken: vehToken } } };
+  }
+
+  // Intent: hide all routes
+  if (/(hide|ocultar)\s+(routes|trayectos)/.test(lower)) {
+    return { reply: 'Hiding all routes.', intent: { type: 'hide_all_routes', payload: {} } };
+  }
+  const cancelMatch = lower.match(/cancel\s+delivery\s+(d\d{3,})/i);
+  if (cancelMatch) {
+    return { reply: `Cancelling delivery ${cancelMatch[1].toUpperCase()}...`, intent: { type: 'cancel_delivery', payload: { id: cancelMatch[1].toUpperCase() } } };
+  }
+
+  // Q&A: where is vehicle X
+  if ((/where is|d[oó]nde est[aá]/).test(lower) && vehiclesData) {
+    const m = lower.match(/(vehicle|carro|camion|camión)\s+([a-z0-9-]+)/i);
+    if (m) {
+      const token = m[2];
+      const v = vehiclesData.features.find((f) => f.properties.id.toLowerCase() === token || f.properties.alias.toLowerCase().includes(token));
+      if (v) {
+        const [lon, lat] = v.geometry.coordinates;
+        return { reply: `${v.properties.alias} is at ${lon.toFixed(5)}, ${lat.toFixed(5)} (state: ${v.properties.state}).` };
+      }
+    }
+  }
+
+  return { reply: base };
 }

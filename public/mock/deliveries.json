@@ -1,0 +1,54 @@
+[
+  {
+    "id": "D001",
+    "vehicleId": "V001",
+    "pickupWarehouseId": "WH1",
+    "dropStoreId": "ST1",
+    "items": [
+      { "sku": "SKU-BOX", "qty": 20 }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "D002",
+    "vehicleId": "V002",
+    "pickupWarehouseId": "WH2",
+    "dropStoreId": "ST2",
+    "items": [
+      { "sku": "SKU-ELC", "qty": 10 }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "D003",
+    "vehicleId": "V005",
+    "pickupWarehouseId": "WH1",
+    "dropStoreId": "ST2",
+    "items": [
+      { "sku": "SKU-FOOD", "qty": 15 }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "D004",
+    "vehicleId": "V010",
+    "pickupWarehouseId": "WH2",
+    "dropStoreId": "ST1",
+    "items": [
+      { "sku": "SKU-HH", "qty": 25 }
+    ],
+    "status": "pending"
+  },
+  {
+    "id": "D005",
+    "vehicleId": "V013",
+    "pickupWarehouseId": "WH1",
+    "dropStoreId": "ST1",
+    "items": [
+      { "sku": "SKU-BOX", "qty": 30 }
+    ],
+    "status": "pending"
+  }
+]
+
+

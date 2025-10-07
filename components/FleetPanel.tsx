@@ -18,9 +18,10 @@ interface FleetPanelProps {
   vehicles: VehiclesGeoJson | null;
   onUpdateVehicle?: (vehicle: VehicleFeature) => void;
   onAddVehicle?: (vehicle: VehicleFeature) => void;
+  onDeleteVehicle?: (vehicleId: string) => void;
 }
 
-export default function FleetPanel({ open, onOpenChange, vehicles, onUpdateVehicle, onAddVehicle }: FleetPanelProps) {
+export default function FleetPanel({ open, onOpenChange, vehicles, onUpdateVehicle, onAddVehicle, onDeleteVehicle }: FleetPanelProps) {
   const [query, setQuery] = useState('');
   const [type, setType] = useState<string>('all');
   const [state, setState] = useState<string>('all');
@@ -203,6 +204,14 @@ export default function FleetPanel({ open, onOpenChange, vehicles, onUpdateVehic
                       }}
                     >
                       Details
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="h-8"
+                      onClick={() => onDeleteVehicle?.(v.properties.id)}
+                    >
+                      Delete
                     </Button>
                     {routes.length > 0 && (
                       <select
