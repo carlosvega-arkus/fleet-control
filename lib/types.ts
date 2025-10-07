@@ -52,6 +52,8 @@ export interface RouteFeature {
     distance?: number;
     duration?: number;
     variant?: 'primary' | 'alt';
+    vehicleId?: string;
+    deliveryId?: string;
   };
 }
 
@@ -60,9 +62,63 @@ export interface RouteGeoJson {
   features: RouteFeature[];
 }
 
+// Logistics locations (warehouses and stores)
+export type LocationType = 'warehouse' | 'store';
+
+export interface InventoryItem {
+  sku: string;
+  name?: string;
+  qty: number;
+}
+
+export interface LocationProperties {
+  id: string;
+  name: string;
+  type: LocationType;
+  inventory?: InventoryItem[];
+}
+
+export interface LocationFeature {
+  type: 'Feature';
+  geometry: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
+  properties: LocationProperties;
+}
+
+export interface LocationsGeoJson {
+  type: 'FeatureCollection';
+  features: LocationFeature[];
+}
+
+// Deliveries
+export type DeliveryStatus = 'pending' | 'picking' | 'en_route' | 'delivered' | 'cancelled';
+
+export interface DeliveryItem {
+  sku: string;
+  qty: number;
+}
+
+export interface Delivery {
+  id: string;
+  vehicleId: string;
+  pickupWarehouseId: string;
+  dropStoreId: string;
+  items: DeliveryItem[];
+  status: DeliveryStatus;
+  // Optional runtime fields for simulation
+  route?: RouteGeoJson | null;
+  progress?: number; // 0..1 along primary route
+  etaMs?: number;
+}
+
 export interface MapViewProps {
   vehiclesGeoJson: VehiclesGeoJson | null;
   routeGeoJson?: RouteGeoJson | null;
+  locationsGeoJson?: LocationsGeoJson | null;
+  deliveryRoutesGeoJson?: RouteGeoJson | null;
+  routesVersion?: number;
   onMapLoaded?: () => void;
   theme: MapTheme;
   pickMode?: boolean;

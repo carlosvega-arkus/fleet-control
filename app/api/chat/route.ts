@@ -3,8 +3,8 @@ export const revalidate = 0;
 export const runtime = 'nodejs';
 
 import { NextResponse } from 'next/server';
-import { generateAIResponse } from '@/lib/ai-responses';
-import { VehiclesGeoJson } from '@/lib/types';
+import { generateAIResponse, generateAIResponseRich } from '@/lib/ai-responses';
+import { VehiclesGeoJson, LocationsGeoJson, Delivery } from '@/lib/types';
 
 function buildFleetContext(vehiclesData?: VehiclesGeoJson | null): string {
   if (!vehiclesData || !vehiclesData.features) return 'No fleet context provided.';
@@ -32,17 +32,21 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => ({}))) as {
     message?: string;
     vehiclesData?: VehiclesGeoJson | null;
+    locationsData?: LocationsGeoJson | null;
+    deliveriesData?: Delivery[] | null;
   };
 
   const message = body?.message || '';
   const vehiclesData = body?.vehiclesData || null;
+  const locationsData = body?.locationsData || null;
+  const deliveriesData = body?.deliveriesData || null;
 
   const apiKey = process.env.GOOGLE_AI_API_KEY;
 
   // Fallback to local rules if no API key configured
   if (!apiKey) {
-    const reply = generateAIResponse(message, vehiclesData);
-    return NextResponse.json({ reply, provider: 'local', usedFallback: true });
+    const rich = generateAIResponseRich(message, vehiclesData, locationsData, deliveriesData);
+    return NextResponse.json({ ...rich, provider: 'local', usedFallback: true });
   }
 
   try {
@@ -83,8 +87,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ reply, provider: 'gemini', usedFallback: false });
   } catch (error) {
-    const reply = generateAIResponse(message, vehiclesData);
-    return NextResponse.json({ reply, provider: 'local', usedFallback: true });
+    const rich = generateAIResponseRich(message, vehiclesData, locationsData, deliveriesData);
+    return NextResponse.json({ ...rich, provider: 'local', usedFallback: true });
   }
 }
 

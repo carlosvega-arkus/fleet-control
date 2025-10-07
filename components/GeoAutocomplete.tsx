@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { addRecentPlace, getRecentPlaces } from '@/lib/storage';
+import { addRecentPlace, getRecentPlaces, type RecentPlace } from '@/lib/storage';
 
 interface Suggestion {
   id: string;

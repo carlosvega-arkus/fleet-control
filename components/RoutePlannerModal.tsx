@@ -44,6 +44,7 @@ export default function RoutePlannerModal(props: RoutePlannerModalProps) {
     onToggleOptimize,
     routeSummary,
     onPickField,
+    onSaveRoute,
   } = props;
 
   const handleSubmit = (e: React.FormEvent) => {

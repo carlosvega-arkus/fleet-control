@@ -1,0 +1,51 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-117.0455, 32.5208] },
+      "properties": {
+        "id": "WH1",
+        "name": "Warehouse A",
+        "type": "warehouse",
+        "inventory": [
+          { "sku": "SKU-BOX", "name": "Boxes", "qty": 120 },
+          { "sku": "SKU-FOOD", "name": "Canned Food", "qty": 80 }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-117.0331, 32.5152] },
+      "properties": {
+        "id": "WH2",
+        "name": "Warehouse B",
+        "type": "warehouse",
+        "inventory": [
+          { "sku": "SKU-ELC", "name": "Electronics", "qty": 45 },
+          { "sku": "SKU-HH", "name": "Household", "qty": 95 }
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-117.0502, 32.5132] },
+      "properties": {
+        "id": "ST1",
+        "name": "Store 1",
+        "type": "store"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-117.0399, 32.5236] },
+      "properties": {
+        "id": "ST2",
+        "name": "Store 2",
+        "type": "store"
+      }
+    }
+  ]
+}
+
+
