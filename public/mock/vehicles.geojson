@@ -1,0 +1,325 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0382, 32.5149]
+      },
+      "properties": {
+        "id": "V001",
+        "alias": "Alpha",
+        "type": "van",
+        "heading": 45,
+        "state": "en_route",
+        "speed": 35,
+        "battery": 87
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0452, 32.5089]
+      },
+      "properties": {
+        "id": "V002",
+        "alias": "Bravo",
+        "type": "light_truck",
+        "heading": 180,
+        "state": "en_route",
+        "speed": 42,
+        "battery": 65
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0302, 32.5209]
+      },
+      "properties": {
+        "id": "V003",
+        "alias": "Charlie",
+        "type": "motorcycle",
+        "heading": 270,
+        "state": "en_route",
+        "speed": 28,
+        "battery": 92
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0522, 32.5179]
+      },
+      "properties": {
+        "id": "V004",
+        "alias": "Delta",
+        "type": "cargo_bike",
+        "heading": 90,
+        "state": "idle",
+        "speed": 0,
+        "battery": 100
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0282, 32.5119]
+      },
+      "properties": {
+        "id": "V005",
+        "alias": "Echo",
+        "type": "van",
+        "heading": 135,
+        "state": "en_route",
+        "speed": 31,
+        "battery": 74
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0412, 32.5249]
+      },
+      "properties": {
+        "id": "V006",
+        "alias": "Foxtrot",
+        "type": "light_truck",
+        "heading": 225,
+        "state": "idle",
+        "speed": 0,
+        "battery": 58
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0482, 32.5139]
+      },
+      "properties": {
+        "id": "V007",
+        "alias": "Golf",
+        "type": "motorcycle",
+        "heading": 315,
+        "state": "en_route",
+        "speed": 39,
+        "battery": 81
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0342, 32.5189]
+      },
+      "properties": {
+        "id": "V008",
+        "alias": "Hotel",
+        "type": "cargo_bike",
+        "heading": 0,
+        "state": "en_route",
+        "speed": 15,
+        "battery": 95
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0552, 32.5099]
+      },
+      "properties": {
+        "id": "V009",
+        "alias": "India",
+        "type": "van",
+        "heading": 60,
+        "state": "offline",
+        "speed": 0,
+        "battery": 12
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0262, 32.5159]
+      },
+      "properties": {
+        "id": "V010",
+        "alias": "Juliet",
+        "type": "light_truck",
+        "heading": 150,
+        "state": "idle",
+        "speed": 0,
+        "battery": 88
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0432, 32.5069]
+      },
+      "properties": {
+        "id": "V011",
+        "alias": "Kilo",
+        "type": "motorcycle",
+        "heading": 240,
+        "state": "en_route",
+        "speed": 44,
+        "battery": 70
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0362, 32.5229]
+      },
+      "properties": {
+        "id": "V012",
+        "alias": "Lima",
+        "type": "cargo_bike",
+        "heading": 330,
+        "state": "idle",
+        "speed": 0,
+        "battery": 99
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0502, 32.5199]
+      },
+      "properties": {
+        "id": "V013",
+        "alias": "Mike",
+        "type": "van",
+        "heading": 75,
+        "state": "en_route",
+        "speed": 37,
+        "battery": 63
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0322, 32.5109]
+      },
+      "properties": {
+        "id": "V014",
+        "alias": "November",
+        "type": "light_truck",
+        "heading": 165,
+        "state": "idle",
+        "speed": 0,
+        "battery": 79
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0472, 32.5169]
+      },
+      "properties": {
+        "id": "V015",
+        "alias": "Oscar",
+        "type": "motorcycle",
+        "heading": 255,
+        "state": "en_route",
+        "speed": 33,
+        "battery": 85
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0392, 32.5219]
+      },
+      "properties": {
+        "id": "V016",
+        "alias": "Papa",
+        "type": "cargo_bike",
+        "heading": 345,
+        "state": "idle",
+        "speed": 0,
+        "battery": 91
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0292, 32.5079]
+      },
+      "properties": {
+        "id": "V017",
+        "alias": "Quebec",
+        "type": "van",
+        "heading": 120,
+        "state": "offline",
+        "speed": 0,
+        "battery": 5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0442, 32.5239]
+      },
+      "properties": {
+        "id": "V018",
+        "alias": "Romeo",
+        "type": "light_truck",
+        "heading": 210,
+        "state": "en_route",
+        "speed": 40,
+        "battery": 72
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0512, 32.5129]
+      },
+      "properties": {
+        "id": "V019",
+        "alias": "Sierra",
+        "type": "motorcycle",
+        "heading": 300,
+        "state": "idle",
+        "speed": 0,
+        "battery": 96
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-117.0352, 32.5149]
+      },
+      "properties": {
+        "id": "V020",
+        "alias": "Tango",
+        "type": "cargo_bike",
+        "heading": 30,
+        "state": "en_route",
+        "speed": 18,
+        "battery": 83
+      }
+    }
+  ]
+}
