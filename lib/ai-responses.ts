@@ -1,7 +1,18 @@
 import { VehiclesGeoJson, VehicleFeature, LocationsGeoJson, Delivery } from './types';
 
+export const AIIntentTypes = [
+  'start_delivery',
+  'cancel_delivery',
+  'status_delivery',
+  'reroute_to_location',
+  'show_vehicle_route',
+  'hide_all_routes'
+] as const;
+
+export type AIIntentType = (typeof AIIntentTypes)[number];
+
 export interface AIIntent {
-  type: 'start_delivery' | 'cancel_delivery' | 'status_delivery' | 'reroute_to_location' | 'show_vehicle_route' | 'hide_all_routes';
+  type: AIIntentType;
   payload: any;
 }
 
