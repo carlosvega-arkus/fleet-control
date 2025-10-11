@@ -1,12 +1,12 @@
 /**
  * Next.js API Route for AI chat interactions.
- * 
+ *
  * Handles POST requests with chat history and fleet context, relays them to
  * the Groq LLM API (Llama-3 model) if API key is set, otherwise falls back to local AI logic.
  * Wraps responses in a standardized shape for the frontend.
- * 
+ *
  * @fileoverview AI chat endpoint: Accepts conversation messages and fleet data, returns an AI-powered reply and intent.
- * 
+ *
  * Exports:
  * - dynamic: Forces dynamic rendering for this route.
  * - revalidate: Disables ISR (no cache).
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
   const locationsData = body?.locationsData || null;
   const deliveriesData = body?.deliveriesData || null;
 
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
 
   // If no API Key, use local fallback
   if (!apiKey) {
@@ -82,40 +82,44 @@ export async function POST(req: Request) {
     const context = getContext({ vehiclesData, locationsData, deliveriesData });
 
     // Include context as first message, then all history
-    const formattedMessages = [
-      { role: "system", content: context },
-      ...messages.map((msg) => ({
-        role: msg.type === "user" ? "user" : "assistant",
-        content: msg.content,
-      })),
-    ];
+    const formattedMessages = messages.map((msg) => ({
+      role: msg.type === "user" ? "user" : "model",
+      parts: [{ text: msg.content }],
+    }));
 
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: formattedMessages,
-        temperature: 0.3,
-        max_tokens: 512,
-      }),
-    });
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: context }]
+          },
+          contents: formattedMessages,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 512,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
 
-    if (!res.ok) throw new Error(`Groq API returned ${res.status}`);
+    if (!res.ok) throw new Error(`Gemini API returned ${res.status}`);
 
     const data = await res.json();
     const rawContent =
-      data?.choices?.[0]?.message?.content?.trim() ||
+      data.candidates[0].content.parts[0].text ||
       '{"reply": "Sorry, I could not generate a response.", "intent": null}';
 
     let parsed;
     try {
       parsed = JSON.parse(rawContent);
     } catch {
-      // si el modelo no devolvió un JSON válido
       parsed = {
         reply: rawContent,
         intent: null,
@@ -125,11 +129,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ...parsed,
-      provider: "groq",
+      provider: "gemini",
       usedFallback: false,
     });
   } catch (error) {
-    console.log("Error calling Groq API:", error);
+    console.log("Error calling Gemini API:", error);
     // Local fallback in case of error
     const lastMessage = messages[messages.length - 1]?.content || "Hello";
     const fallbackResponse = localFallback(
