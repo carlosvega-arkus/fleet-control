@@ -102,7 +102,7 @@ export async function POST(req: Request) {
           contents: formattedMessages,
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 512,
+            maxOutputTokens: 1024,
             responseMimeType: "application/json",
           },
         }),
