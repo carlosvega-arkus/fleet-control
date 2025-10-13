@@ -20,7 +20,7 @@ import {
   LocationsGeoJson,
 } from '@/lib/types';
 import { initSimulation, start as startSim, stop as stopSim, startDelivery as simStartDelivery, cancelDelivery as simCancelDelivery, rerouteVehicleTo as simReroute, removeVehicle as simRemoveVehicle } from '@/lib/simulation';
-import { generateAIResponse, generateAIResponseRich } from '@/lib/ai-responses';
+import { generateAIResponseRich } from '@/lib/ai-responses';
 import { generateAlias } from '@/lib/utils';
 import { saveRoute, getSavedRoutes } from '@/lib/storage';
 
@@ -308,76 +308,131 @@ export default function Home() {
     localStorage.setItem('fleet-theme', newTheme);
   };
 
-  const handleSendMessage = (content: string) => {
+  /**
+   * Handles AI intent actions received from chat or API responses.
+   *
+   * Dispatches simulation state changes or UI updates based on the detected intent type.
+   *
+   * @param {object} intent - The AI intent object, containing type and payload.
+   * @param {string} intent.type - Intent type (e.g., 'start_delivery', 'reroute_to_location').
+   * @param {object} intent.payload - Intent payload, varies by type.
+   */
+  const handleIntent = (intent: any) => {
+    if (!intent) return;
+    switch (intent?.type) {
+      case 'start_delivery':
+        simStartDelivery(intent.payload.id);
+        break;
+      case 'cancel_delivery':
+        simCancelDelivery(intent.payload.id);
+        break;
+      case 'reroute_to_location':
+        simReroute(intent.payload.vehicleId, intent.payload.locationId);
+        break;
+      case 'show_vehicle_route': {
+        /** Extracts and matches routes for the given vehicle token, and updates the delivery routes shown on the map. */
+        const token = (intent.payload.vehicleToken as string).toLowerCase();
+        const all = (deliveries || [])
+          .filter((d: any) => d?.route?.features?.length)
+          .flatMap((d: any) => d.route.features);
+        const filtered = all.filter((f: any) =>
+          String(f?.properties?.vehicleId || '').toLowerCase().includes(token)
+        );
+        setDeliveryRoutes(
+          filtered.length
+            ? { type: 'FeatureCollection', features: filtered }
+            : null
+        );
+        break;
+      }
+      case 'hide_all_routes':
+        setDeliveryRoutes(null);
+        break;
+      default:
+        break;
+    }
+  };
+
+  /**
+   * Handles sending a user message to the AI assistant, updating the chat message state,
+   * and processing the AI's response (including intent handling).
+   *
+   * 1. Appends the user's message to chat.
+   * 2. Sets loading state.
+   * 3. Sends the full updated message history and fleet context (vehicles, locations, deliveries) to the `/api/chat` endpoint.
+   * 4. Handles AI API response:
+   *    - Processes any detected intent with `handleIntent`.
+   *    - Adds the assistant's reply as a new message to the chat.
+   * 5. If the API call fails, falls back to local AI logic (`generateAIResponseRich`).
+   * 6. Resets loading state.
+   *
+   * @param {string} content - The text of the user message to send.
+   * @returns {Promise<void>} Resolves when operation completes.
+   */
+  const handleSendMessage = async (content: string): Promise<void> => {
+    /** Assemble the user's message object */
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
       content,
       timestamp: new Date(),
     };
+    /** Create updated message history including new user message */
+    const updatedMessages = [...chatMessages, userMessage];
 
-    setChatMessages((prev) => [...prev, userMessage]);
+    setChatMessages(updatedMessages);
     setIsChatLoading(true);
 
-    ;(async () => {
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: content, vehiclesData, locationsData, deliveriesData: deliveries }),
-        });
-        const data = await res.json();
-        // Execute intent if present (local fallback)
-        if (data?.intent) {
-          const intent = data.intent;
-          if (intent.type === 'start_delivery') {
-            simStartDelivery(intent.payload.id);
-          } else if (intent.type === 'cancel_delivery') {
-            simCancelDelivery(intent.payload.id);
-          } else if (intent.type === 'reroute_to_location') {
-            simReroute(intent.payload.vehicleId, intent.payload.locationId);
-          } else if (intent.type === 'show_vehicle_route') {
-            // Filter routes to only the vehicle requested
-            const token = (intent.payload.vehicleToken as string).toLowerCase();
-            const all = (deliveries || []).filter((d: any) => d?.route?.features?.length).flatMap((d: any) => d.route.features);
-            const filtered = all.filter((f: any) => String(f?.properties?.vehicleId || '').toLowerCase().includes(token));
-            setDeliveryRoutes(filtered.length ? { type: 'FeatureCollection', features: filtered } : null);
-          } else if (intent.type === 'hide_all_routes') {
-            setDeliveryRoutes(null);
-          }
-          // cancel and reroute stubs could be wired here as needed
-        }
-        const systemMessage: Message = {
-          id: `msg-${Date.now()}-ai`,
-          type: 'system',
-          content: data?.reply || 'Sorry, I could not generate a response.',
-          timestamp: new Date(),
-        };
-        setChatMessages((prev) => [...prev, systemMessage]);
-      } catch (e) {
-        const rich = generateAIResponseRich(content, vehiclesData, locationsData, deliveries);
-        if (rich.intent?.type === 'start_delivery') simStartDelivery(rich.intent.payload.id);
-        if (rich.intent?.type === 'cancel_delivery') simCancelDelivery(rich.intent.payload.id);
-        if (rich.intent?.type === 'reroute_to_location') simReroute(rich.intent.payload.vehicleId, rich.intent.payload.locationId);
-        if (rich.intent?.type === 'show_vehicle_route') {
-          const token = (rich.intent.payload.vehicleToken as string).toLowerCase();
-          const all = (deliveries || []).filter((d: any) => d?.route?.features?.length).flatMap((d: any) => d.route.features);
-          const filtered = all.filter((f: any) => String(f?.properties?.vehicleId || '').toLowerCase().includes(token));
-          setDeliveryRoutes(filtered.length ? { type: 'FeatureCollection', features: filtered } : null);
-        }
-        if (rich.intent?.type === 'hide_all_routes') setDeliveryRoutes(null);
-        const fallback = rich.reply;
-        const systemMessage: Message = {
-          id: `msg-${Date.now()}-ai`,
-          type: 'system',
-          content: fallback,
-          timestamp: new Date(),
-        };
-        setChatMessages((prev) => [...prev, systemMessage]);
-      } finally {
-        setIsChatLoading(false);
-      }
-    })();
+    /**
+     * Helper to construct an assistant message object for UI state.
+     * @param {string} reply - AI's reply content.
+     * @returns {Message} Assistant message object.
+     */
+    const createAssistantMessage = (reply: string): Message => ({
+      id: `msg-${Date.now()}-ai`,
+      type: 'assistant',
+      content: reply,
+      timestamp: new Date(),
+    });
+
+    try {
+      // Send message + context to API
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: updatedMessages,
+          vehiclesData,
+          locationsData,
+          deliveriesData: deliveries,
+        }),
+      });
+      const data = await res.json();
+
+      // If intent is returned from the backend, process with handleIntent
+      handleIntent(data.intent);
+
+      setChatMessages((prev) => [
+        ...prev,
+        createAssistantMessage(data?.reply || 'Sorry, I could not generate a response.'),
+      ]);
+    } catch (e) {
+      // If server/AI is unavailable, fall back to local AI response
+      const rich = generateAIResponseRich(
+        content,
+        vehiclesData,
+        locationsData,
+        deliveries
+      );
+      handleIntent(rich.intent);
+
+      setChatMessages((prev) => [
+        ...prev,
+        createAssistantMessage(rich.reply),
+      ]);
+    } finally {
+      setIsChatLoading(false);
+    }
   };
 
   const handleUpdateVehicle = (updated: VehicleFeature) => {
@@ -442,7 +497,7 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-fleet-background">
+    <div className="h-screen max-h-screen flex flex-col bg-fleet-background">
       <Header
         theme={mapTheme}
         onThemeToggle={handleThemeToggle}
@@ -452,7 +507,7 @@ export default function Home() {
         onSchedulerClick={() => setIsSchedulerOpen(true)}
       />
 
-      <div className="flex-1 relative flex w-full">
+      <div className="flex-1 relative flex w-full overflow-hidden">
         <div className="flex-1 relative">
           <MapView
             vehiclesGeoJson={vehiclesData}
@@ -481,7 +536,7 @@ export default function Home() {
           )}
         </div>
 
-        <div className="border-l bg-white">
+        <div className="border-l bg-white flex flex-col h-full overflow-hidden">
           <ChatPanel
             messages={chatMessages}
             onSendMessage={handleSendMessage}
@@ -509,7 +564,7 @@ export default function Home() {
         locations={locationsData}
         deliveries={deliveries as any}
         onStart={(id) => simStartDelivery(id)}
-        onCancel={(id) => { /* soft cancel in sim */ }}
+        onCancel={(id) => {}}
       />
 
       <RoutePlannerModal

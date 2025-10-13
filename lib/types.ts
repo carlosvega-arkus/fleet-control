@@ -146,7 +146,7 @@ export interface ControlsPanelProps {
 
 export interface Message {
   id: string;
-  type: 'system' | 'user';
+  type: 'system' | 'assistant' | 'user';
   content: string;
   timestamp: Date;
 }
